@@ -1,0 +1,4 @@
+show file changes: git status
+add all files to local git: git add .
+commit to local git: git commit -m "whatever you want"
+push code to publish repo: git push -u origin main

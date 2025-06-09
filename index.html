@@ -1,166 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name='viewport' content='initial-scale = 1, minimum-scale = 1, maximum-scale = 1'/>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="x-ua-compatible" content="IE=10">
-<title></title>
-<style type="text/css">#initialLoading{background:url(assets/htmlimages/loader.gif) no-repeat center center;background-color:#ffffff;position:absolute;margin:auto;top:0;left:0;right:0;bottom:0;z-index:10010;}</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anxiety Defusal App</title>
+  <style>
+    :root {
+      --bg-color: #F5F5DC;
+      --text-color: #5D4037;
+      --primary-color: #A1887F;
+      --secondary-color: #D7CCC8;
+      --accent-color: #8D6E63;
+      --white: #FFFFFF;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    nav {
+      display: flex;
+      background-color: var(--secondary-color);
+      border-bottom: 2px solid var(--primary-color);
+    }
+    nav button.tab-btn {
+      flex: 1;
+      padding: 1rem 0;
+      background: none;
+      border: none;
+      font-weight: bold;
+      color: var(--text-color);
+      cursor: pointer;
+      transition: background-color 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    nav button.tab-btn.active {
+      background-color: var(--primary-color);
+      color: var(--white);
+      border-bottom-color: var(--accent-color);
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+    .pane { display: none; }
+    .pane.active { display: block; animation: fadeIn 0.4s ease-in; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      text-align: center;
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+    }
+    .subtle { text-align: center; color: var(--accent-color); font-style: italic; margin-bottom: 1.5rem; }
+    .card {
+      background-color: var(--white);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px var(--shadow);
+      border-left: 5px solid var(--primary-color);
+    }
+    button.collapsible {
+      width: 100%;
+      background: var(--white);
+      border: none;
+      padding: 1rem;
+      text-align: left;
+      font-weight: bold;
+      font-size: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      position: relative;
+      box-shadow: 0 2px 6px var(--shadow);
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button.collapsible:after {
+      content: '▼';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.3s;
+      color: var(--primary-color);
+    }
+    button.collapsible.active:after { transform: translateY(-50%) rotate(180deg); }
+    button.collapsible:hover { background-color: var(--secondary-color); }
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      margin-bottom: 1rem;
+    }
+    .collapsible-content div {
+      padding: 0.75rem;
+      background: rgba(255,255,255,0.8);
+      border-radius: 8px;
+    }
+    .question-card, .reframe-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+    textarea {
+      width: 100%;
+      border: 2px solid var(--secondary-color);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin: 0.5rem 0 1rem;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: vertical;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: var(--primary-color);
+      color: var(--white);
+      transition: background-color 0.3s;
+    }
+    .btn:hover { background-color: var(--accent-color); }
+    .step-indicator { display: block; font-weight: bold; color: var(--accent-color); margin-bottom: 0.5rem; }
+    ol, ul { margin-left: 1.2rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+  <nav>
+    <button class="tab-btn active" data-target="tab1">Self-Scan</button>
+    <button class="tab-btn" data-target="tab2">In-the-Moment</button>
+    <button class="tab-btn" data-target="tab3">Affirmations</button>
+    <button class="tab-btn" data-target="tab4">Reframe</button>
+  </nav>
+  <div class="container">
+    <div id="tab1" class="pane active">
+      <h1>Safe Zone Self-Inquiry</h1>
+      <p class="subtle">When you feel discomfort, take a quiet moment. Ask each in order to build clarity.</p>
+      <div id="scan-flow-container"></div>
+    </div>
+    <div id="tab2" class="pane">
+      <h1>C.A.R.E. Protocol</h1>
+      <p class="subtle">A step-by-step guide when panic strikes.</p>
+      <div class="card">
+        <strong>C – CALM the Body First</strong>
+        <button class="collapsible">Drop everything you are doing now</button>
+        <div class="collapsible-content"><div>
+          <ol>
+            <li>Go to a restroom and splash cold water on your face and wrists.</li>
+            <li>Pop a sour candy or a piece of strong mint gum in your mouth.</li>
+            <li>Tense every muscle in your body—clench your fists, curl your toes, squeeze your shoulders—for 5 seconds as hard as you can. Then, release everything at once.</li>
+            <li>Deep inhale and exhale for 1 minute</li>
+          </ol>
+        </div></div>
+        <button class="collapsible">5-4-3-2-1 Grounding</button>
+        <div class="collapsible-content"><div>
+          <ol>
+            <li>5 things you SEE</li>
+            <li>4 things you FEEL</li>
+            <li>3 things you HEAR</li>
+            <li>2 things you SMELL</li>
+            <li>1 thing you TASTE</li>
+          </ol>
+        </div></div>
+      </div>
+      <div class="card">
+        <strong>A – ACKNOWLEDGE the Fear</strong>
+        <p><em>"Hello, anxiety. I see you. I know you're here because you're trying to protect me. You're scared that I'm boring, or that people will judge me. Thank you for trying to keep me safe. I am allowed to feel this way. I don't have to fight it.</em></p>
+    <p> You are not the anxiety. You are the one who is noticing the anxiety. </p>  
+        <p>Narrate what's happening in your head as if you were a neutral documentary filmmaker. Instead of "I'm so awkward," think: "Ah, there is the feeling of awkwardness."</p>
+</div>
+      <div class="card">
+        <strong>R – RESPOND with Truths</strong>
+        <button class="collapsible">Counter</button>
+        <div class="collapsible-content"><div><em>This is just anxiety. It feels awful, but it is not dangerous, and it will pass.
+            I can handle this feeling. It's really uncomfortable, but not dangerous.
+        </em></div></div>
+        
+        <button class="collapsible">Evidence</button>
+        <div class="collapsible-content">
+            <div>
+                <b><em>What is the hard evidence that this thought is 100% true?</em></b>
+                <p>Feelings: I feel like I'll make a fool of myself</p>
+                <p>Evidence: Three people pointed and laughed</p>
+                <b><em>What is the evidence that this thought is not true, or is at least an exaggeration?</em></b>
+                <p>Feelings: I feel like I'll make a fool of myself</p>
+                <p>Most people in the meeting are focused on their own work, not on me.</p>
+                <p>I've been in dozens of meetings and nobody have never complaint about me.</p>
+            </div>
+        </div>
+        <button class="collapsible">Alternative explanations</button>
+        <div class="collapsible-content">
+            <div>
+                <b><em> What are at least ONE, more probable explanations for this situation?</em></b>
+                <p>Feelings: They are mad at me.</p>
+                <p>Alternative explanations:</p>
+                <ul>
+                   
+                <li>They were lost in thought about a deadline and didn't even see me.</li>
+                    <li>They are having a bad day and weren't in the mood to talk.</li>
+                    <li>They were rushing to the restroom.</li></ul>
+                <p>The key is to sympathize with them. And try to assume the best of everyone.</p>
+            </div>
+        </div>
+        <button class="collapsible">So what</button>
+        <div class="collapsible-content">
+            <div>
+                <b><em>Okay, let's say the worst happens. I do [action]. So what? What will actually, tangibly happen next?</em></b>
+                <p>Anxiety says: "It will be a disaster!"</p>
+                <p>So what? What's the worst could happen?</p>
+                <p>So what? How much will this specific moment matter in 5 minutes? In 5 hours? In 5 days?</p>
+                <p>So what? Can you survive this? I believed you survive something like this before.</p>
+                
+            </div>
+        </div>
+    </div>
+      <div class="card">
+        <strong>E – ENGAGE One Small Action</strong>
+        <ul>
+          <li>Be kind with yourself for one minute</li>
+            <li>Before conversation: Forget about yourself completely for two minutes, and instead, try to discover one interesting detail about the other person. My only job is to listen. I don't have to be interesting. I just have to be interested.</li>
+            <li>Before putting on the clothes: Wear the "imperfect" shirt deliberately. Your goal is not to look amazing. Your goal is to survive the day in a slightly imperfect outfit. At the end of the day, ask yourself: "Did anyone comment? Did my boss fire me? Did I die?" The answer will be no. You are gathering evidence that perfection is not required.</li>
+          <li>Walk past the group—goal is to move.</li>
+          <li>Post a simple story &nbsp;— &nbsp;survive being seen.</li>
+        </ul>
+      </div>
+    </div>
+    <div id="tab3" class="pane">
+      <h1>Affirmations</h1>
+      <p class="subtle">Click a category below to recall your truths.</p>
+      
+      <div class="card">
+        <button class="collapsible">I know people will think I'm pathetic</button>
+        <div class="collapsible-content"><div>
+          <p>Wait. Let's be gentle here, both with me and with them.
+            Right now, I am assuming I know exactly what is in their minds. But am I a mind reader? No. I am hurting myself with a story that I've invented.
+            Let's look at the facts. They are not my jury; they are just people living their own lives, wrapped up in their own worries and thoughts. How much time did I spend today thinking about someone else's awkward moment? Probably zero. They don't care about me as much as my anxiety tells me they do. Their world doesn't revolve around me, and that is a relief. It's freedom.
+            Did I notice someone sitting alone at lunch yesterday? Maybe. If I did, what did I think? Did I feel negative towards them? No. I probably thought, 'Oh, they're having a quiet lunch,' and then I immediately went back to worrying about my own life. That's just normal.
+        </p>
+            <p>And let's be kind to them, too. If they didn't invite me to do something fun, it's not a secret message that they hate me. It's a fact of busy lives. People forget. People get distracted. It doesn't mean I am disliked; it simply means I was not at the front of their mind in that moment. That's okay. If I want to be included, I can also take a small step to connect later.
+            So right now, I will let go of the story I'm telling myself about them. I will focus on the only thing I can know for sure: my own intentions. My intention is to be kind. If being quiet and taking my time is my true self in this moment, then I will let it be. I will be here, as I am, without apology."
+            
+            </p>
+        </div></div>
+      </div>
 
-"
-"
+      <div class="card">
+        <button class="collapsible">I disappointed that important person</button>
+        <div class="collapsible-content"><div>
+          <p>I am listening for information about the task, not for a verdict on me. What is the specific problem that needs to be solved? What is the action that was done incorrectly?
+            I'm learning and growing, and mistakes are part of that process
+        </p>
+            <p>If someone is loud or bitter to you: I wonder what is causing this strong reaction in them? They must be under a lot of stress. Perhaps they were treated this way and don't know another way to communicate. 
+                Their harsh words say more about their stress/communication style than my worth.
+               it's probably about their own stress and learned communication patterns. 
+               
+            </p>
+        </div></div>
+      </div>
+    
+      <div class="card">
+        <button class="collapsible">I feel myself trying to hard for approval</button>
+        <div class="collapsible-content"><div>
+          <p>I see you, trying so hard to get it right. I see the effort you're putting in to be seen as competent and valuable. Let's take a moment and be gentle here.
+            This feeling of pressure isn't a sign that you're failing; it's a sign that you care deeply. And that is a wonderful quality.
+            But right now, let's let go of the need to impress. Impressing others is exhausting, and it's not where your true power lies. Your power isn't in a perfect performance; it's in your quiet competence. It's in the good work you do every single day.
+            Your boss doesn't need a dazzling show. They need your thoughtful, reliable work. You've already earned your place here through your skills and your dedication, not through your ability to say the perfect thing in this one moment.
+            So, let's shift the goal. The goal is not to impress.</p>
+            <p>It's okay to be solid, steady, and quiet. It's okay to be you. Your best work comes from a place of calm, not from a place of pressure. Let's return to that calm now.</p>
+        </div></div>
+      </div>
 
-<script>
+      <div class="card">
+        <button class="collapsible">I'm carefully crafting all the conversation
+        </button>
+        <div class="collapsible-content"><div>
+          <p>Wait. This thought that just popped into my head—this is my authentic self trying to connect.
+            Being in my head, planning the perfect sentence, is where the anxiety lives. Being in the conversation, sharing the first thing that comes to mind, is where the flow is. That is me being real.
+            A conversation is not a performance. It doesn't need a script. It needs genuine contributions, even if they are imperfect. An awkward or simple contribution is better than the perfect contribution that never gets said.</p>
+            <p>My goal is not to impress everyone. My goal is to add to the energy of the conversation. Sharing this thought is how I do that.
+            I will trust my first thought. I will say it, even if my voice shakes a little. I am choosing to be present in this conversation, not a prisoner in my own mind</p>
+        </div></div>
+      </div>
 
-var deviceReady = false;
-var initCalled = false ;
-var initialized = false;
+      <div class="card">
+        <button class="collapsible">Why I can't be like others...</button>
+        <div class="collapsible-content"><div>
+            <p>Wait. Let's remember who I really am.
+                I know that person I was on my carefree day. I genuinely love her. She is not a stranger; she is me.
+                On that day, I was happy. I was present. I was effortlessly kind to people, not because I was trying to perform, but because that's who I am when I'm not afraid. I deserve to feel that way more often. I deserve her.
+                This anxiety, this fear of being boring or saying the wrong thing, is just a cloud passing in front of that person. It is not the sky.
+                I know what will happen. Nothing will happen like I fear. The catastrophe I'm imagining is a phantom. It's a story I suffer from in my head, not in reality.
+                And I know that people love authenticity. I do too. I love it when people are real, when they're a little awkward, when they're just... them. It gives me permission to be me. By being brave enough to be my authentic self right now—even if it's quiet, even if it's imperfect—I am giving someone else permission to be themselves too.
+                So my goal right now is not to be perfect. It is to be authentic. I will be kind to myself, take one small step, and let the real me have a chance to show up.</p>
+            <p>When you genuinely enjoy reading your Kindle alone at lunch, that's not something to fix or apologize for. That's you honoring what actually brings you peace and joy.
+            There's this beautiful freedom in recognizing that your way of being social might look different from others, and that's completely valid. Some people recharge by being the loudest voice in group conversations. Others contribute through thoughtful listening, well-timed questions, or quiet presence. Both are valuable ways to connect.
+            The key distinction is asking yourself: "Am I doing this because I want to, or because I'm afraid?" When you choose to read alone because you love that quiet time with a good book - that's self-respect. When you sit alone because you're convinced everyone will reject you - that's anxiety talking.
+            
+            
+            Same with conversations. If you're naturally more of a listener who chimes in thoughtfully rather than dominating the discussion, that's your communication style. Some of the most magnetic people I know are the ones who make others feel heard rather than trying to be the entertainment.
+            
+            I am not a boring person; I am a person who has been afraid to share. I am now learning how to share, one small step at a time.
+            
+            Your preferences matter. Your way of moving through the world matters. You don't need to perform extroversion to prove your worth. The goal isn't to become someone else - it's to become more authentically yourself, whether that's quiet or loud, solitary or social, funny or thoughtful.
+            Trust that inner voice that knows what actually feels good to you. It's usually wiser than the anxious voice telling you to fit in.
+            </p>
+            
+            <div class="card">
+                <button class="collapsible">I'm afraid to share things</button>
+                <div class="collapsible-content"><div>
+                  <p>Sharing a piece of my life does not make me an attention-seeker; it makes me human.
+                    I am allowed to take up space. I am allowed to share what brings me joy. I don't need to shrink myself to make others comfortable. If this feels true to who I am, then it's not fake.
+                    I'm not performing for strangers—I'm documenting my life for me. I'd rather be seen as 'extra' than feel invisible.</p>
+                    <p>The people who genuinely care about me want to see me happy and expressed. They will not be put off by my joy. Anyone who finds my joy 'obnoxious' is revealing something about themselves, not me.
+                    So, right now, I am giving myself permission to be seen. I am sharing this because it brings me joy, and my joy is valid and worthy of being expressed.
+                    </p>
+                </div></div>
+              </div>
+            
+        </div></div>
+      </div>
+    </div>
+    <div id="tab4" class="pane">
+      <h1>Reframe Thoughts</h1>
+      <p class="subtle">Choose an anxious thought to challenge.</p>
+      <div id="reframe-container"></div>
+      <div class="card">
+        <strong>Universal Templates:</strong>
+        <ul>
+          <li>Other People: When someone else does this exact thing, do I think that about them?</li>
+          <li>Best Friend: If my best friend did/said/wore this exact thing, what would I think?</li>
+          <li>So What?: And then what would happen? How would that actually affect my day/life/relationships?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('button.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('button.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+    // Self-Scan Logic
+    const scanContainer = document.getElementById('scan-flow-container');
+  const scanQuestions = [
+    { part: 'Part 1: The Physical Scan', question: 'Where in my body am I feeling this discomfort right now?' },
+    { part: 'Part 1: The Physical Scan', question: 'Did I sleep well? Do I need some rest?' },
+    { part: 'Part 1: The Physical Scan', question: 'Have I had water in the last hour?' },
+    { part: 'Part 1: The Physical Scan', question: 'Have I eaten in the last three hours?' },
+    { part: 'Part 1: The Physical Scan', question: 'Can you just “be with” this feeling for three breaths? Do you feel calm now?', action: true },
+    { part: 'Part 2: The Emotional Scan', question: 'Is there specific word that can capture this feeling? (embarrassed, left out, inadequate, angry)' },
+    { part: 'Part 2: The Emotional Scan', question: 'If this feeling could speak, what  would it say?' },
+    { part: 'Part 3: The Context Scan', question: 'What exact moment did this start in the last hour?' },
+    { part: 'Part 4: The Core Inquiry', question: 'What does this situation remind me of?' },
+    { part: 'Part 4: The Core Inquiry', question: 'What need is not being met? (Safety, Belonging, Competence, Authenticity)' },
+    { part: 'Part 4: The Core Inquiry', question: 'If I treat myself with 100% kindness, what small act or phrase would I choose?' }
+  ];
+  let current = 0;
+  const scanResponses = [];
 
-function onBodyLoad()
-{
-	if(typeof window.device === 'undefined')
-	{
-		document.addEventListener("deviceready", onDeviceReady, false);
-	}
-	else
-	{
-		onDeviceReady();
-	}
-}
-function isLivePreview()
-{
-	return  ( window.location.pathname.indexOf("\/livepreview") === 0 );
-}
+  function render() {
+    scanContainer.innerHTML = '';
 
-function onDeviceReady()
-{
-	deviceReady = true ;
-	if(initCalled === true)
-		initializeCP();
-}
+    // 1) Show history
+    scanResponses.forEach((ans, i) => {
+      const hist = document.createElement('div');
+      hist.className = 'question-card';
+      hist.innerHTML = `
+        <p><strong>Q${i+1}:</strong> ${scanQuestions[i].question}</p>
+        <p><em>${ans}</em></p>
+      `;
+      scanContainer.appendChild(hist);
+    });
 
-function isLivePreviewDirty()
-{
-	var reqUrl = window.location.protocol + "//" + window.location.host + "/livepreview/isLivePreviewDirty?folder=" + cp.previewFolder;
-	var request = new XMLHttpRequest();
-	request.open('GET', reqUrl);
-	request.responseType = 'text';
-	request.onload = function()
-	{
-  		var response = JSON.parse(request.response);
-		  if(response.isDirty == false)
-		  {
-			return;
-		  }
-  		window.location.href = window.location.protocol + "//" + window.location.host + "/livepreview/" + response.folder + "/index.html";
-	};
-	request.send();
-}
+    // 2) Completion view
+    if (current >= scanQuestions.length) {
+      scanContainer.innerHTML += `
+        <div class="card">
+          <h2>Inquiry Complete</h2>
+          <p>Well done—acknowledging your experience is brave self-care.</p>
+          <button class="btn" onclick="openExportViewer()">View & Export</button>
+          <button class="btn" onclick="start()">Start Over</button>
+        </div>`;
+      return;
+    }
 
-function initializeCP()
-{
-	if(initialized)
-		return;
-	initCalled = true ;
-	if(cp.pg && deviceReady === false)
-		return;
+    // 3) Next question
+    const q = scanQuestions[current];
+    const card = document.createElement('div');
+    card.className = 'question-card';
 
-	function cpInit()
-	{
-		document.body.innerHTML = " <div class='cpMainContainer' id='cpDocument' style='left: 0px; top:0px;' >	<div id='main_container' style='top:0px;position:absolute;width:100%;height:100%;'>	<div id='projectBorder' style='top:0px;left:0px;width:100%;height:100%;position:absolute;display:block'></div>	<div class='shadow' id='project_container' style='left: 0px; top:0px;width:100%;height:100%;position:absolute;overflow:hidden;' >	<div id='project' class='cp-movie' style='width:100% ;height:100%;overflow:hidden;'>		<div id='project_main' class='cp-timeline cp-main'>			<div id='div_Slide' onclick='cp.handleClick(event)' style='top:0px; width:100% ;height:100% ;position:absolute;-webkit-tap-highlight-color: rgba(0,0,0,0);'></div>			<canvas id='slide_transition_canvas'></canvas>		</div>		<div id='autoplayDiv' style='display:block;text-align:center;position:absolute;left:0px;top:0px;'>			<img id='autoplayImage' src='' style='position:absolute;display:block;vertical-align:middle;'/>			<div id='playImage' tabindex='9999' role='button' aria-label='play' onkeydown='cp.CPPlayButtonHandle(event)' onClick='cp.movie.play()' style='position:absolute;display:block;vertical-align:middle;'></div>		</div>		<div id='cc' style='left:0px; position:absolute;visibility:hidden;pointer-events:none;' onclick='cp.handleCCClick(event)'>			<div id='ccText' style='left:0px;float:left;position:absolute;width:100%;height:100%;'>			<p style='margin-left:8px;margin-right:8px;margin-top:2px;'>			</p>			</div>			<div id='ccClose' style='background-image:url(./assets/htmlimages/ccClose.png);right:10px; position:absolute;cursor:pointer;width:13px;height:11px;' onclick='cp.showHideCC()'>			</div>		</div>	</div>	<div id='toc' style='left:0px;position:absolute;-webkit-tap-highlight-color: rgba(0,0,0,0);'>	</div>	<div id='playbar' style='bottom:0px; position:fixed'>	</div>	<div id='gestureIcon' class='gestureIcon'>	</div>	<div id='gestureHint' class='gestureHintDiv'>		<div id='gImage' class='gesturesHint'></div>	</div>	<div id='pwdv' style='display:block;text-align:center;position:absolute;width:100%;height:100%;left:0px;top:0px'></div>	<div id='exdv' style='display:block;text-align:center;position:absolute;width:100%;height:100%;left:0px;top:0px'></div>	</div>	</div></div><div id='lightBoxBackgroundDiv' style='left: 0px; top:0px;position:fixed;z-index:100;width:100%;height:100%;display:none;overflow:auto;background: rgba(0, 0, 0, .9)' onclick='cp.hideLightBox()'>	<div id='lightBoxDiv' style='width:100%;height:100%;opacity:1;overflowY:scroll'>	</div></div><div id='imageStackBackgroundDiv' class='imageStack' style='left: 0px; top:0px; position:absolute;z-index:100;width:100%;height:100%;display:none;flex-direction:row;justify-content:space-between;align-items:stretch;background: rgba(200, 200, 200, .9)'>	<div id='prevImageDiv' class='imageStack' style='width:5%;height:100%;opacity:1;flex: 0 0 40px; align-self: stretch; order: 1;background:url(./assets/playbar/PlaybarIcons/Backward.png) no-repeat center;' onClick='cp.previousImageStackImage()' onmouseover='this.style.background=\'rgba(0, 0, 0, .4)\' onmouseout='this.style.background=\'rgba(200, 200, 200, .9)\'>	</div>	<div id='mainImageDiv' class='imageStack' style='width:90%;height:auto;opacity:1;flex: 1 1 auto; align-self: stretch; order: 2;'>	</div>	<div id='nextImageDiv' class='imageStack' style='width:5%;height:100%;opacity:1;flex: 0 0 40px; align-self: stretch; order: 3;background:url(./assets/playbar/PlaybarIcons/Forward.png) no-repeat center' onClick='cp.nextImageStackImage()' onmouseover='this.style.background=\'rgba(0, 0, 0, .4)\' onmouseout='this.style.background=\'rgba(200, 200, 200, .9)\''>	</div>	<div id='imageThumbnails' class='imageStack' style='width:auto;height:auto;opacity:1;display:none'>	</div>	<a class='boxclose' id='boxclose' style='position:absolute;right:0px;float:right;width:26px; height:26px;background:transparent url(http://tympanus.net/Tutorials/CSSOverlay/images/cancel.png) repeat top left;margin-top:30px;margin-right:30px;cursor:pointer;' onClick='cp.hideImageStack()'></a></div><div id='blockUserInteraction' class='blocker' style='width:100%;height:100%;'>	<table style='width:100%;height:100%;text-align:center;vertical-align:middle' id='loading' class='loadingBackground'>		<tr style='width:100%;height:100%;text-align:center;vertical-align:middle'>			<td style='width:100%;height:100%;text-align:center;vertical-align:middle'>				<image id='preloaderImage'></image>				<div id='loadingString' class='loadingString'>Loading...</div>			</td>		</tr>	</table></div> <div id='initialLoading'></div>";
-		cp.DoCPInit();
-		var lCpExit = window["DoCPExit"];
-		window["DoCPExit"] = function()
-		{
-			if(cp.UnloadActivties)
-				cp.UnloadActivties();
-			lCpExit();
-		};
+    let inner = `
+      <span class="step-indicator">${q.part}</span>
+      <p><strong>${q.question}</strong></p>
+    `;
 
-		if( window.CPYTAPINeeded )
-		{
-		  var tag = document.createElement('script');
-		  tag.src = "https://www.youtube.com/iframe_api";
-		  document.getElementsByTagName('head')[0].appendChild(tag);
-		}
+    if (q.action) {
+      // the three-breaths choice
+      inner += `
+        <label><input type="radio" name="breath" value="yes"> Yes – I can do it</label><br>
+        <label><input type="radio" name="breath" value="no"> No – I need help</label><br>
+        <button class="btn" onclick="handleBreath()">Continue</button>
+      `;
+    } else {
+      // free-text response
+      inner += `
+        <textarea placeholder="Your answer..."></textarea>
+        <button class="btn" onclick="next()">Next</button>
+      `;
+      if (current > 0) {
+        inner += `
+          <button
+            class="btn"
+            style="background: var(--secondary-color); color: var(--text-color); margin-top: 0.5rem;"
+            onclick="prev()"
+          >Back</button>
+        `;
+      }
+    }
 
-		if( window.CPVimeoAPINeeded )
-		{
-		  var tag = document.createElement('script');
-		  tag.src = "https://player.vimeo.com/api/player.js";
-		  document.getElementsByTagName('head')[0].appendChild(tag);
-		}		
-	}
-	
-	cpInit();
-	initialized = true;
-	if(isLivePreview() === true)
-	{	
-		cp.previewFolder = window.location.href.split("\/")[4];
-		setInterval(isLivePreviewDirty, 1000);
-	}
-}
+    card.innerHTML = inner;
+    scanContainer.appendChild(card);
 
-</script>
+    const ta = card.querySelector('textarea');
+    if (ta) ta.focus();
+  }
 
- </head>
-<body onload="onBodyLoad()">
-		<div id='initialLoading'></div>
-<script>
-		(function()
-		{
-			if(document.documentMode < 9)
-			{
-				document.body.innerHTML = "";
-				document.write("The content you are trying to view is not supported in the current Document Mode of Internet Explorer. Change the Document Mode to Internet Explorer 9 Standards and try to view the content again.<br>To change the Document Mode, press F12, click Document Mode: <current mode>, and then select Internet Explorer 9 Standards.");
-				return;
-			}
-			window.addEventListener("load",function() 
-			{
-				setTimeout(function() 
-				{					
-					var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src = 'assets/js/CPXHRLoader.js';
-					script.defer = 'defer';
-					script.onload = function()
-					{
-						var lCSSLoaded = false;
-						var lJSLoaded = false;
-						function constructDIVs()
-						{
-							if(lCSSLoaded && lJSLoaded)
-							{
-								initializeCP();
-							}
-						}
-						cpXHRJSLoader.css('assets/css/CPLibraryAll.css',function() {
-							lCSSLoaded = true;
-							constructDIVs();
-						});
-						var lJSFiles = [  'assets/js/jquery-3.3.1.min.js','assets/js/OpenAjaxManagedHub-all.js','assets/js/CPM.js','assets/playbar/playbarScript.js' ];
-						cpXHRJSLoader.js(lJSFiles,function()
-						{
-							//console.log("js loaded");
+  function handleBreath() {
+    const choice = scanContainer.querySelector('input[name="breath"]:checked');
+    if (!choice) return alert('Please choose Yes or No to continue.');
+    scanResponses[current] =
+      choice.value === 'yes'
+        ? 'Yes – I can take three deep breaths with this feeling.'
+        : 'No – I need to switch to panic relief.';
+    if (choice.value === 'no') {
+      document.querySelector('button.tab-btn[data-target="tab2"]').click();
+    } else {
+      current++;
+      render();
+    }
+  }
 
-							var imagesJSONFiles = [ 'dr/imgmd.json' ];
-							cpXHRJSLoader.loadImagesJSON(imagesJSONFiles,function(imageToJSONPathMap){
-								cp.imageToJSONPathMap = imageToJSONPathMap;
-								var imageJSONFiles = [ 'dr/img1.json','dr/img2.json','dr/img3.json' ];
-								if(window.location.protocol.substr(0,4) == "file")
-									cpXHRJSLoader.preloadURLs(imageJSONFiles, constructDIVs);
-								lJSLoaded = true;
-								if(window.location.protocol.substr(0,4) != "file" || !imageJSONFiles.length)
-									constructDIVs();
-							});
-						});
-					}
-					document.getElementsByTagName('head')[0].appendChild(script);
-				},1);
-			},false);
-		})();
-		
-</script>
-<noscript style="text-align:center;font-size:24px;">Enable Javascript support in the browser.</noscript>
+  function next() {
+    const ta = scanContainer.querySelector('textarea');
+    scanResponses[current] = ta.value.trim();
+    current++;
+    render();
+  }
+
+  function prev() {
+    if (current > 0) {
+      current--;
+      render();
+    }
+  }
+
+  function start() {
+    current = 0;
+    scanResponses.length = 0;
+    render();
+  }
+
+  // Opens a new styled window for export/print
+  function openExportViewer() {
+    let html = `
+      <html><head>
+      <title>Self-Scan Export</title>
+      <style>
+        body { font-family: sans-serif; padding: 2rem; background: #f9f9f9; color: #333; }
+        h1 { color: #8D6E63; text-align: center; }
+        .qa { margin-bottom: 1.5rem; padding: 1rem; background: #fff;
+              border-left: 5px solid #A1887F; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .qa h2 { margin: 0 0 0.5rem; font-size: 1.1rem; color: #A1887F; }
+        .qa p.answer { margin: 0; font-style: italic; }
+        button { display: block; margin: 2rem auto 0; padding: 0.5rem 1rem;
+                 background: #A1887F; color: #fff; border: none; border-radius: 4px;
+                 cursor: pointer; font-size: 1rem; }
+      </style>
+      </head><body>
+      <h1>Self-Scan Results</h1>
+    `;
+    scanResponses.forEach((ans, i) => {
+      html += `
+        <div class="qa">
+          <h2>Q${i+1}: ${scanQuestions[i].question}</h2>
+          <p class="answer">${ans}</p>
+        </div>
+      `;
+    });
+    html += `<button onclick="window.print()">Print</button>`;
+    html += `</body></html>`;
+
+    const w = window.open();
+    w.document.write(html);
+    w.document.close();
+  }
+
+  // initialize
+  start();
+    // Collapsible logic
+    function initCollapsibles(root=document) {
+      root.querySelectorAll('button.collapsible').forEach(btn => {
+        btn.addEventListener('click', ()=>{
+          btn.classList.toggle('active');
+          const c = btn.nextElementSibling;
+          if (c.style.maxHeight) { c.style.maxHeight = null; }
+          else { c.style.maxHeight = c.scrollHeight + 'px'; }
+        });
+      });
+    }
+    initCollapsibles();
+    // Reframe logic
+    const reframeData = [
+      { title: "They said I'm boring...", thought: "Am I actually that boring?", reality: "Close friends tease each other - if they actually thought I was boring, would they hang out with me regularly?", evidence: "What proof did they mean it?", reframe: "People who care about me sometimes make jokes. This doesn't define my worth or personality.", kindness: "I'm allowed to not be the funniest person in every group and still be valued for who I am." },
+      { title: "I look weird sitting alone", thought: "Everyone thinks I'm a loner", reality: "People eat alone for many reasons - busy schedules, phone calls, needing quiet time, different lunch times.", evidence: "When I see a coworker eating alone, do I think 'wow, they're so weird and friendless' or do I just mind my own business?", reframe: "It's completely normal to have quiet moments.", kindness: "I'm allowed to have quiet moments and don't need to prove my social worth to colleagues during every lunch break." }
+    ];
+    const rf = document.getElementById('reframe-container');
+    reframeData.forEach(item=>{
+      const c = document.createElement('div'); c.className='reframe-card';
+      c.innerHTML=`<button class="collapsible">${item.title}</button><div class="collapsible-content"><div><p><strong>Anxious:</strong> ${item.thought}</p><p><strong>Reality:</strong> ${item.reality}</p><p><strong>Evidence?</strong> ${item.evidence}</p><p><strong>Reframe:</strong> ${item.reframe}</p><p><strong>Kindness:</strong> ${item.kindness}</p></div></div>`;
+      rf.appendChild(c);
+    });
+    initCollapsibles(rf);
+  </script>
 </body>
 </html>

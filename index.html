@@ -137,6 +137,74 @@
     .btn:hover { background-color: var(--accent-color); }
     .step-indicator { display: block; font-weight: bold; color: var(--accent-color); margin-bottom: 0.5rem; }
     ol, ul { margin-left: 1.2rem; margin-bottom: 1rem; }
+
+    #level-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+.level-btn {
+  flex: 1;
+  margin: 0 0.25rem;
+  padding: 0.75rem;
+  border: 2px solid var(--primary-color);
+  background: var(--white);
+  color: var(--primary-color);
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+.level-btn.active,
+.level-btn:hover {
+  background: var(--primary-color);
+  color: var(--white);
+}
+#shuffle-btn {
+  margin-top: 0.5rem;
+}
+#challenge-display p.challenge-text {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 1rem 0 0.5rem;
+  color: var(--text-color);
+}
+#challenge-display p.reminder {
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+}
+#challenge-display span.congrats {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+@keyframes pop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.challenge-result {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  text-align: center;
+  animation: pop 0.4s ease-out;
+}
+.challenge-result .celebration {
+  font-size: 1.4rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+.challenge-result .reminder {
+  margin-top: 1rem;
+  font-style: italic;
+  color: var(--accent-color);
+}
+
   </style>
 </head>
 <body>
@@ -144,7 +212,7 @@
     <button class="tab-btn active" data-target="tab1">Self-Scan</button>
     <button class="tab-btn" data-target="tab2">In-the-Moment</button>
     <button class="tab-btn" data-target="tab3">Affirmations</button>
-    <button class="tab-btn" data-target="tab4">Reframe</button>
+    <button class="tab-btn" data-target="tab4">Challenge</button>
   </nav>
   <div class="container">
     <div id="tab1" class="pane active">
@@ -297,6 +365,26 @@
       </div>
 
       <div class="card">
+        <button class="collapsible">I feel I'm so boring</button>
+        <div class="collapsible-content"><div>
+          <p>Thought: Am I actually that boring?</p>
+          <p>Reality: Close friends tease each other - if they actually thought I was boring, would they hang out with me regularly?</p>
+          <p>Evidence: What proof did they mean it?</p>
+          <p>Kindness: I'm allowed to not be the funniest person in every group and still be valued for who I am</p>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <button class="collapsible">I want some quiet lunch</button>
+        <div class="collapsible-content"><div>
+          <p>Thought: Everyone thinks I'm a loner</p>
+          <p>Reality: People eat alone for many reasons - busy schedules, phone calls, needing quiet time, different lunch times.</p>
+          <p>Evidence: When I see a coworker eating alone, do I think 'wow, they're so weird and friendless' or do I just mind my own business?</p>
+          <p>Kindness: It's completely normal to have quiet moments. I'm allowed to have quiet moments and don't need to prove my social worth to colleagues during every lunch break</p>
+        </div></div>
+      </div>
+
+      <div class="card">
         <button class="collapsible">Why I can't be like others...</button>
         <div class="collapsible-content"><div>
             <p>Wait. Let's remember who I really am.
@@ -317,9 +405,10 @@
             
             Your preferences matter. Your way of moving through the world matters. You don't need to perform extroversion to prove your worth. The goal isn't to become someone else - it's to become more authentically yourself, whether that's quiet or loud, solitary or social, funny or thoughtful.
             Trust that inner voice that knows what actually feels good to you. It's usually wiser than the anxious voice telling you to fit in.
-            </p>
+            </p></div></div>
+          </div>
             
-            <div class="card">
+      <div class="card">
                 <button class="collapsible">I'm afraid to share things</button>
                 <div class="collapsible-content"><div>
                   <p>Sharing a piece of my life does not make me an attention-seeker; it makes me human.
@@ -331,23 +420,27 @@
                 </div></div>
               </div>
             
-        </div></div>
-      </div>
+        
     </div>
     <div id="tab4" class="pane">
-      <h1>Reframe Thoughts</h1>
-      <p class="subtle">Choose an anxious thought to challenge.</p>
-      <div id="reframe-container"></div>
+      <h1>Challenge of the Day</h1>
+      <p class="subtle">Pick your level, then hit “Shuffle” to get today’s mini-challenge.</p>
+  
       <div class="card">
-        <strong>Universal Templates:</strong>
-        <ul>
-          <li>Other People: When someone else does this exact thing, do I think that about them?</li>
-          <li>Best Friend: If my best friend did/said/wore this exact thing, what would I think?</li>
-          <li>So What?: And then what would happen? How would that actually affect my day/life/relationships?</li>
-        </ul>
+        <strong>Select Level:</strong>
+        <div id="level-buttons">
+          <button class="level-btn" data-level="1">Level 1</button>
+          <button class="level-btn" data-level="2">Level 2</button>
+          <button class="level-btn" data-level="3">Level 3</button>
+        </div>
+        <button class="btn" id="shuffle-btn" onclick="pickChallenge()">Shuffle Challenge</button>
+      </div>
+      
+      
+      <div id="challenge-display" class="card" style="min-height:4rem;">
+        <!-- Your random challenge will appear here -->
       </div>
     </div>
-  </div>
   <script>
     document.querySelectorAll('button.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -526,18 +619,75 @@
       });
     }
     initCollapsibles();
-    // Reframe logic
-    const reframeData = [
-      { title: "They said I'm boring...", thought: "Am I actually that boring?", reality: "Close friends tease each other - if they actually thought I was boring, would they hang out with me regularly?", evidence: "What proof did they mean it?", reframe: "People who care about me sometimes make jokes. This doesn't define my worth or personality.", kindness: "I'm allowed to not be the funniest person in every group and still be valued for who I am." },
-      { title: "I look weird sitting alone", thought: "Everyone thinks I'm a loner", reality: "People eat alone for many reasons - busy schedules, phone calls, needing quiet time, different lunch times.", evidence: "When I see a coworker eating alone, do I think 'wow, they're so weird and friendless' or do I just mind my own business?", reframe: "It's completely normal to have quiet moments.", kindness: "I'm allowed to have quiet moments and don't need to prove my social worth to colleagues during every lunch break." }
-    ];
-    const rf = document.getElementById('reframe-container');
-    reframeData.forEach(item=>{
-      const c = document.createElement('div'); c.className='reframe-card';
-      c.innerHTML=`<button class="collapsible">${item.title}</button><div class="collapsible-content"><div><p><strong>Anxious:</strong> ${item.thought}</p><p><strong>Reality:</strong> ${item.reality}</p><p><strong>Evidence?</strong> ${item.evidence}</p><p><strong>Reframe:</strong> ${item.reframe}</p><p><strong>Kindness:</strong> ${item.kindness}</p></div></div>`;
-      rf.appendChild(c);
-    });
-    initCollapsibles(rf);
+    const challenges = {
+    1: [
+      'Take a mindful 3-minute bathroom break — not to hide, but to ground.',
+      'Change the way you sit for comfort instead of “correct posture.”',
+      'Take off your shoes under your desk for 5 minutes and just relax.',
+      'Brush your hair, adjust your scarf, or stretch at your desk without rushing.',
+      'Take a guilt-free power nap in your corner.',
+      'Eat lunch without pretending to be busy.',
+      'Wear one piece of clothing that makes YOU happy.'
+    ],
+    2: [
+      'Smile at 3 people on your way to the bathroom or elevator.',
+      'Say “Hi” with eye contact to someone you usually pass silently.',
+      'Leave a short thank-you note or message.',
+      'Tell someone “That looks cool / I like that / That’s a nice idea.”',
+      'Speak at normal volume — enough for the other person to clearly hear.',
+      'Post one thing that made you genuinely happy.',
+      'Sit where you want to sit.'
+    ],
+    3: [
+      'Ask 1 person, “What are you working on today?”',
+      'Say “no thanks” to something — without over-explaining.',
+      'When someone asks “how are you?” — give a real answer.',
+      'Leave a gathering when you’re actually ready to leave.',
+      'Get visibly excited about something you love (even if it’s “nerdy”).',
+      'Say hello to someone you want to talk to.',
+      'Ask for what you need.',
+      'Correct or give honest feedback to someone kindly.',
+      'Sing when you want to.'
+    ]
+  };
+
+  const reminders = [
+  'You can screenshot this challenge to remember to do this.',
+  'You are more than ready to do this challenge!',
+  'This challenge is your daily act of self-care—go for it!',
+  'You’ve got this—one step at a time!',
+  'Small actions lead to big changes—start now!',
+  'Embrace the challenge—it’s a chance to grow!',
+  'Every step counts—you’re doing great!'
+];
+
+
+// track current level
+let currentLevel = 1;
+
+// initialize level buttons
+document.querySelectorAll('.level-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLevel = btn.dataset.level;
+  });
+});
+// set Level 1 active by default
+document.querySelector('.level-btn[data-level="1"]').classList.add('active');
+
+function pickChallenge() {
+  const list = challenges[currentLevel];
+  const choice = list[Math.floor(Math.random() * list.length)];
+  const reminder = reminders[Math.floor(Math.random() * reminders.length)];
+  document.getElementById('challenge-display').innerHTML = `
+    <span class="congrats">✨ Here’s today’s challenge:</span>
+    <p class="challenge-text">${choice}</p>
+    <p class="reminder">${reminder}</p>
+    <button class="btn" onclick="pickChallenge()">Try Another</button>
+  `;
+}
+
   </script>
 </body>
 </html>

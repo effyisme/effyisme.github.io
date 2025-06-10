@@ -205,6 +205,15 @@
   color: var(--accent-color);
 }
 
+#view-all-toggle {
+  margin-right: 0.5rem;
+}
+#all-challenges-list li,
+#recent-challenges li {
+  margin-bottom: 0.25rem;
+}
+
+
   </style>
 </head>
 <body>
@@ -440,6 +449,22 @@
       <div id="challenge-display" class="card" style="min-height:4rem;">
         <!-- Your random challenge will appear here -->
       </div>
+
+        <!-- Recent history of picks (move this above) -->
+  <div class="card">
+    <strong>Recent Challenges:</strong>
+    <ul id="recent-challenges" style="margin-top:0.5rem; list-style:decimal inside;"></ul>
+  </div>
+
+  <!-- Toggle to view all challenges across Levels 1–3 -->
+  <div class="card">
+    <label>
+      <input type="checkbox" id="view-all-toggle">
+      View All Challenges (Levels 1–3)
+    </label>
+    <ul id="all-challenges-list" style="display:none; margin-top:0.5rem; list-style:disc inside;"></ul>
+  </div>
+
     </div>
   <script>
     document.querySelectorAll('button.tab-btn').forEach(btn => {
@@ -622,6 +647,7 @@
     const challenges = {
     1: [
       'Take a mindful 3-minute bathroom break — not to hide, but to ground.',
+      'Wear no makeup today—what’s inside you matters more than any mask.',
       'Change the way you sit for comfort instead of “correct posture.”',
       'Take off your shoes under your desk for 5 minutes and just relax.',
       'Brush your hair, adjust your scarf, or stretch at your desk without rushing.',
@@ -633,18 +659,23 @@
       'Smile at 3 people on your way to the bathroom or elevator.',
       'Say “Hi” with eye contact to someone you usually pass silently.',
       'Leave a short thank-you note or message.',
+      'Think of at least one good thing about a person who usually makes you anxious.',
+      'Absorb a conversation and note three interesting things about the other person.',
       'Tell someone “That looks cool / I like that / That’s a nice idea.”',
       'Speak at normal volume — enough for the other person to clearly hear.',
       'Post one thing that made you genuinely happy.',
-      'Sit where you want to sit.'
+      'Sit where you want to sit.',
+      'Resist FOMO—turn off social notifications for today and be fully present.'
     ],
     3: [
       'Ask 1 person, “What are you working on today?”',
+      'Don’t prepare any script before your meetings today—speak from the heart.',
       'Say “no thanks” to something — without over-explaining.',
       'When someone asks “how are you?” — give a real answer.',
       'Leave a gathering when you’re actually ready to leave.',
       'Get visibly excited about something you love (even if it’s “nerdy”).',
       'Say hello to someone you want to talk to.',
+      'Join first in all meetings and greet others',
       'Ask for what you need.',
       'Correct or give honest feedback to someone kindly.',
       'Sing when you want to.'
@@ -658,12 +689,17 @@
   'You’ve got this—one step at a time!',
   'Small actions lead to big changes—start now!',
   'Embrace the challenge—it’s a chance to grow!',
+  'Theres no way you can fail this challenge.',
+  'No matter how good you do this challenge, as long as you try.',
+  'Give yourself a chance to do this challenge!',
   'Every step counts—you’re doing great!'
 ];
 
 
 // track current level
 let currentLevel = 1;
+let recentHistory = [];
+
 
 // initialize level buttons
 document.querySelectorAll('.level-btn').forEach(btn => {
@@ -680,13 +716,47 @@ function pickChallenge() {
   const list = challenges[currentLevel];
   const choice = list[Math.floor(Math.random() * list.length)];
   const reminder = reminders[Math.floor(Math.random() * reminders.length)];
+
   document.getElementById('challenge-display').innerHTML = `
     <span class="congrats">✨ Here’s today’s challenge:</span>
     <p class="challenge-text">${choice}</p>
     <p class="reminder">${reminder}</p>
     <button class="btn" onclick="pickChallenge()">Try Another</button>
   `;
+
+  // record into recent history
+  updateRecentHistory(choice);
 }
+
+
+// Update recent history UI
+function updateRecentHistory(challenge) {
+  recentHistory.unshift(challenge);
+  if (recentHistory.length > 3) recentHistory.pop();
+  const ul = document.getElementById('recent-challenges');
+  ul.innerHTML = recentHistory.map(c => `<li>${c}</li>`).join('');
+}
+
+// Update "View All" list
+// Show every challenge from Levels 1, 2 & 3
+function updateAllList() {
+  const all = [...challenges[1], ...challenges[2], ...challenges[3]];
+  const ul = document.getElementById('all-challenges-list');
+  ul.innerHTML = all.map(c => `<li>${c}</li>`).join('');
+}
+
+// Toggle checkbox handler (unchanged placement)
+document.getElementById('view-all-toggle').addEventListener('change', e => {
+  const ul = document.getElementById('all-challenges-list');
+  if (e.target.checked) {
+    updateAllList();
+    ul.style.display = 'block';
+  } else {
+    ul.style.display = 'none';
+  }
+});
+
+
 
   </script>
 </body>

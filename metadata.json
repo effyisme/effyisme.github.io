@@ -1,0 +1,5 @@
+{
+  "name": "Custom Hardware Breadboard Designer",
+  "description": "A high-fidelity technical visualization of a proprietary breadboard system, featuring detailed row mapping for Analog Inputs, PFI, DMM, Analog Outputs, and Power sections.",
+  "requestFramePermissions": []
+}
